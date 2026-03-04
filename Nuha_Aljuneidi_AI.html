@@ -1,0 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>How I Use AI in Academia</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;600&family=DM+Mono:wght@300;400&family=Outfit:wght@300;400;500;600&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --navy:    #0a0f1e;
+    --deep:    #0d1630;
+    --mid:     #112050;
+    --teal:    #0e7c7b;
+    --teal2:   #14a9a8;
+    --gold:    #c9a84c;
+    --gold2:   #e8c97a;
+    --cream:   #f0ead8;
+    --muted:   #7a9bb5;
+    --glow:    rgba(14,124,123,0.35);
+    --glow2:   rgba(201,168,76,0.25);
+  }
+
+  html { scroll-behavior: smooth; }
+
+  body {
+    background: var(--navy);
+    color: var(--cream);
+    font-family: 'Outfit', sans-serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* ── SECTION WRAPPER ── */
+  #ai-section {
+    position: relative;
+    min-height: 100vh;
+    padding: 0;
+    overflow: hidden;
+  }
+
+  /* ── PARTICLE CANVAS ── */
+  #particle-canvas {
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── GRADIENT OVERLAYS ── */
+  .bg-gradient {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 60% at 50% 40%, rgba(14,124,123,0.12) 0%, transparent 65%),
+      radial-gradient(ellipse 50% 40% at 80% 70%, rgba(17,32,80,0.8) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 40% at 20% 30%, rgba(17,32,80,0.6) 0%, transparent 60%),
+      linear-gradient(170deg, #0a0f1e 0%, #0d1630 40%, #0a1628 100%);
+    z-index: 1;
+  }
+
+  /* ── CONTENT ── */
+  .section-content {
+    position: relative;
+    z-index: 10;
+    max-width: 1400px;
+    margin: 0 auto;
+    padding: 90px 40px 100px;
+  }
+
+  /* ── HEADER ── */
+  .section-header {
+    text-align: center;
+    margin-bottom: 80px;
+    opacity: 0;
+    transform: translateY(30px);
+    transition: opacity 0.9s ease, transform 0.9s ease;
+  }
+  .section-header.visible { opacity: 1; transform: translateY(0); }
+
+  .eyebrow {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.72rem;
+    letter-spacing: 0.25em;
+    color: var(--teal2);
+    text-transform: uppercase;
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 14px;
+  }
+  .eyebrow::before, .eyebrow::after {
+    content: '';
+    width: 50px;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--teal2));
+  }
+  .eyebrow::after { transform: scaleX(-1); }
+
+  .section-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: clamp(2.8rem, 6vw, 5.2rem);
+    font-weight: 300;
+    line-height: 1.1;
+    color: var(--cream);
+    letter-spacing: -0.01em;
+    margin-bottom: 24px;
+  }
+  .section-title em {
+    font-style: italic;
+    color: var(--gold2);
+  }
+
+  .section-subtitle {
+    font-size: 1.05rem;
+    font-weight: 300;
+    color: var(--muted);
+    max-width: 580px;
+    margin: 0 auto;
+    line-height: 1.7;
+  }
+
+  /* ── ORBITAL LAYOUT ── */
+  .orbital-system {
+    position: relative;
+    width: 100%;
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+
+  /* ── CENTRAL HUB ── */
+  .hub-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 60px;
+    position: relative;
+  }
+
+  .hub {
+    position: relative;
+    width: 200px;
+    height: 200px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: default;
+    flex-shrink: 0;
+  }
+
+  .hub-ring {
+    position: absolute;
+    border-radius: 50%;
+    border: 1px solid rgba(14,124,123,0.3);
+    animation: hubRotate 20s linear infinite;
+  }
+  .hub-ring:nth-child(1) { width: 200px; height: 200px; border-color: rgba(14,124,123,0.25); }
+  .hub-ring:nth-child(2) { width: 160px; height: 160px; border-color: rgba(201,168,76,0.2); animation-direction: reverse; animation-duration: 14s; }
+  .hub-ring:nth-child(3) { width: 120px; height: 120px; border-color: rgba(14,124,123,0.35); animation-duration: 8s; }
+
+  .hub-ring::before {
+    content: '';
+    position: absolute;
+    width: 7px;
+    height: 7px;
+    background: var(--teal2);
+    border-radius: 50%;
+    top: -3.5px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: 0 0 10px var(--teal2);
+  }
+  .hub-ring:nth-child(2)::before { background: var(--gold); box-shadow: 0 0 10px var(--gold); bottom: -3.5px; top: auto; }
+  .hub-ring:nth-child(3)::before { background: var(--teal2); width: 5px; height: 5px; top: -2.5px; }
+
+  .hub-core {
+    position: relative;
+    z-index: 2;
+    width: 88px;
+    height: 88px;
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, rgba(20,169,168,0.9), rgba(14,124,123,0.6) 50%, rgba(10,15,30,0.8) 100%);
+    box-shadow:
+      0 0 30px rgba(14,124,123,0.6),
+      0 0 60px rgba(14,124,123,0.25),
+      inset 0 0 20px rgba(20,169,168,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    animation: hubPulse 4s ease-in-out infinite;
+  }
+
+  .hub-core svg { width: 36px; height: 36px; opacity: 0.95; }
+
+  @keyframes hubRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
+  @keyframes hubPulse {
+    0%, 100% { box-shadow: 0 0 30px rgba(14,124,123,0.6), 0 0 60px rgba(14,124,123,0.25), inset 0 0 20px rgba(20,169,168,0.3); }
+    50% { box-shadow: 0 0 45px rgba(14,124,123,0.8), 0 0 90px rgba(14,124,123,0.35), inset 0 0 30px rgba(20,169,168,0.4); }
+  }
+
+  /* ── HUB LABEL ── */
+  .hub-label {
+    position: absolute;
+    bottom: -42px;
+    left: 50%;
+    transform: translateX(-50%);
+    text-align: center;
+    white-space: nowrap;
+  }
+  .hub-label span {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--teal2);
+    text-transform: uppercase;
+  }
+
+  /* ── CONNECTOR LINES ── */
+  .connector-svg {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 0;
+  }
+
+  /* ── MODULE GRID ── */
+  .module-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 20px;
+    position: relative;
+    z-index: 5;
+  }
+
+  @media (max-width: 1024px) {
+    .module-grid { grid-template-columns: repeat(3, 1fr); }
+  }
+  @media (max-width: 680px) {
+    .module-grid { grid-template-columns: 1fr; gap: 16px; }
+    .hub { width: 150px; height: 150px; }
+    .hub-ring:nth-child(1) { width: 150px; height: 150px; }
+    .hub-ring:nth-child(2) { width: 118px; height: 118px; }
+    .hub-ring:nth-child(3) { width: 88px; height: 88px; }
+  }
+
+  /* ── MODULE CARD ── */
+  .module {
+    position: relative;
+    border-radius: 16px;
+    padding: 28px 22px;
+    background: linear-gradient(145deg, rgba(17,32,80,0.7), rgba(10,15,30,0.85));
+    border: 1px solid rgba(14,124,123,0.18);
+    backdrop-filter: blur(12px);
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1),
+                box-shadow 0.4s ease,
+                border-color 0.4s ease;
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  .module.visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+  .module:hover {
+    transform: translateY(-8px) scale(1.02);
+    box-shadow: 0 24px 60px rgba(0,0,0,0.5), 0 0 40px var(--glow);
+    border-color: rgba(14,124,123,0.5);
+    z-index: 10;
+  }
+  .module.active {
+    border-color: var(--teal);
+    box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 50px var(--glow);
+  }
+
+  /* Module accent line */
+  .module::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--teal2), transparent);
+    opacity: 0;
+    transition: opacity 0.4s;
+  }
+  .module:hover::before, .module.active::before { opacity: 1; }
+
+  /* Subtle background shimmer */
+  .module::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse 80% 80% at 50% 0%, rgba(14,124,123,0.08), transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s;
+    pointer-events: none;
+  }
+  .module:hover::after { opacity: 1; }
+
+  /* ── MODULE VISUAL SCENE ── */
+  .module-visual {
+    height: 130px;
+    margin-bottom: 18px;
+    position: relative;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(8, 12, 28, 0.6);
+    border: 1px solid rgba(14,124,123,0.1);
+  }
+
+  /* ── MODULE TEXT ── */
+  .module-number {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--teal2);
+    opacity: 0.7;
+    margin-bottom: 8px;
+  }
+
+  .module-title {
+    font-family: 'Cormorant Garamond', serif;
+    font-size: 1.18rem;
+    font-weight: 600;
+    color: var(--cream);
+    line-height: 1.3;
+    margin-bottom: 10px;
+  }
+
+  .module-desc {
+    font-size: 0.82rem;
+    font-weight: 300;
+    color: var(--muted);
+    line-height: 1.65;
+    margin-bottom: 16px;
+  }
+
+  .module-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-family: 'DM Mono', monospace;
+    font-size: 0.6rem;
+    letter-spacing: 0.15em;
+    color: var(--teal2);
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateY(4px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .module:hover .module-tag { opacity: 1; transform: translateY(0); }
+  .module-tag::before {
+    content: '';
+    width: 16px;
+    height: 1px;
+    background: var(--teal2);
+  }
+
+  /* ── EXPANDED PANEL ── */
+  .expand-panel {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.5s cubic-bezier(0.23,1,0.32,1);
+  }
+  .module.active .expand-panel { max-height: 200px; }
+
+  .expand-content {
+    padding: 14px 0 4px;
+    border-top: 1px solid rgba(14,124,123,0.15);
+    margin-top: 14px;
+  }
+  .expand-content p {
+    font-size: 0.8rem;
+    color: var(--muted);
+    line-height: 1.7;
+  }
+  .expand-content strong { color: var(--gold2); font-weight: 500; }
+
+  /* ── SCROLL PROMPT ── */
+  .scroll-hint {
+    text-align: center;
+    margin-top: 60px;
+    opacity: 0;
+    transition: opacity 1s 1.5s;
+  }
+  .scroll-hint.visible { opacity: 1; }
+  .scroll-hint p {
+    font-family: 'DM Mono', monospace;
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--muted);
+    text-transform: uppercase;
+    opacity: 0.5;
+  }
+
+  /* ── BOTTOM STRIP ── */
+  .bottom-strip {
+    margin-top: 80px;
+    padding-top: 40px;
+    border-top: 1px solid rgba(14,124,123,0.12);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 40px;
+    flex-wrap: wrap;
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s, transform 0.8s;
+  }
+  .bottom-strip.visible { opacity: 1; transform: translateY(0); }
+
+  .strip-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    font-size: 0.8rem;
+    color: var(--muted);
+  }
+  .strip-dot {
+    width: 6px;
+    height: 6px;
+    border-radius: 50%;
+    background: var(--teal2);
+    box-shadow: 0 0 8px var(--teal2);
+    animation: dotBlink 2.5s ease-in-out infinite;
+  }
+  .strip-dot:nth-child(1) { animation-delay: 0s; }
+  @keyframes dotBlink {
+    0%, 100% { opacity: 1; } 50% { opacity: 0.3; }
+  }
+
+  /* ══════════════════════════════════
+     MODULE SVG ANIMATIONS
+  ══════════════════════════════════ */
+
+  /* 1 — Building Physics */
+  .bldg-canvas { width: 100%; height: 100%; }
+
+  /* 2 — Literature */
+  .lit-canvas { width: 100%; height: 100%; }
+
+  /* 3 — Python/ML */
+  .py-canvas { width: 100%; height: 100%; }
+
+  /* 4 — Engineering Software */
+  .eng-canvas { width: 100%; height: 100%; }
+
+  /* 5 — Student Examples */
+  .ex-canvas { width: 100%; height: 100%; }
+
+  /* Tilt effect */
+  .module { transform-style: preserve-3d; }
+
+</style>
+</head>
+<body>
+
+<section id="ai-section">
+  <canvas id="particle-canvas"></canvas>
+  <div class="bg-gradient"></div>
+
+  <div class="section-content">
+
+    <!-- HEADER -->
+    <header class="section-header" id="section-header">
+      <div class="eyebrow">Dr Nuha Aljuneidi</div>
+      <h2 class="section-title">How I Use <em>AI</em><br>in Academia</h2>
+      <p class="section-subtitle">
+        Integrating intelligent tools into teaching, research, and engineering — building real things that work.
+      </p>
+    </header>
+
+    <!-- ORBITAL SYSTEM -->
+    <div class="orbital-system" id="orbital-system">
+
+      <!-- Central Hub -->
+      <div class="hub-container">
+        <div class="hub" id="hub">
+          <div class="hub-ring"></div>
+          <div class="hub-ring"></div>
+          <div class="hub-ring"></div>
+          <div class="hub-core">
+            <svg viewBox="0 0 40 40" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <circle cx="20" cy="20" r="8" stroke="rgba(240,234,216,0.9)" stroke-width="1.2"/>
+              <line x1="20" y1="4" x2="20" y2="12" stroke="rgba(240,234,216,0.5)" stroke-width="1"/>
+              <line x1="20" y1="28" x2="20" y2="36" stroke="rgba(240,234,216,0.5)" stroke-width="1"/>
+              <line x1="4" y1="20" x2="12" y2="20" stroke="rgba(240,234,216,0.5)" stroke-width="1"/>
+              <line x1="28" y1="20" x2="36" y2="20" stroke="rgba(240,234,216,0.5)" stroke-width="1"/>
+              <line x1="7.5" y1="7.5" x2="13.1" y2="13.1" stroke="rgba(240,234,216,0.3)" stroke-width="1"/>
+              <line x1="26.9" y1="26.9" x2="32.5" y2="32.5" stroke="rgba(240,234,216,0.3)" stroke-width="1"/>
+              <line x1="32.5" y1="7.5" x2="26.9" y2="13.1" stroke="rgba(240,234,216,0.3)" stroke-width="1"/>
+              <line x1="13.1" y1="26.9" x2="7.5" y2="32.5" stroke="rgba(240,234,216,0.3)" stroke-width="1"/>
+              <circle cx="20" cy="20" r="3" fill="rgba(240,234,216,0.95)"/>
+            </svg>
+          </div>
+          <div class="hub-label"><span>AI Core</span></div>
+        </div>
+      </div>
+
+      <!-- MODULE GRID -->
+      <div class="module-grid" id="module-grid">
+
+        <!-- MODULE 1: Building Physics -->
+        <div class="module" data-index="0" id="mod-0">
+          <div class="module-visual">
+            <canvas class="bldg-canvas" id="bldg-canvas"></canvas>
+          </div>
+          <div class="module-number">01 / 05</div>
+          <h3 class="module-title">Building Physics Tools for Graduate Courses</h3>
+          <p class="module-desc">Interactive visual tools for advanced topics — heat transfer, thermal gradients, energy flow — brought to life for engineering students.</p>
+          <span class="module-tag">Teaching Tools</span>
+          <div class="expand-panel">
+            <div class="expand-content">
+              <p>AI helps me build <strong>custom digital instruments</strong> — psychrometric calculators, thermal layer explorers, energy dashboards — that make complex building physics tangible and interactive for graduate-level learners.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 2: Literature Reviews -->
+        <div class="module" data-index="1" id="mod-1">
+          <div class="module-visual">
+            <canvas class="lit-canvas" id="lit-canvas"></canvas>
+          </div>
+          <div class="module-number">02 / 05</div>
+          <h3 class="module-title">AI Support for Dissertation Literature Reviews</h3>
+          <p class="module-desc">Organizing large bodies of research, identifying connections across papers, and structuring deep academic knowledge.</p>
+          <span class="module-tag">Research Support</span>
+          <div class="expand-panel">
+            <div class="expand-content">
+              <p>Graduate students manage hundreds of sources. AI assists in <strong>mapping research clusters</strong>, surfacing thematic patterns, and transforming scattered citations into structured, coherent literature foundations.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 3: Python / ML -->
+        <div class="module" data-index="2" id="mod-2">
+          <div class="module-visual">
+            <canvas class="py-canvas" id="py-canvas"></canvas>
+          </div>
+          <div class="module-number">03 / 05</div>
+          <h3 class="module-title">Python & Machine Learning for Engineering</h3>
+          <p class="module-desc">Coding support, data analysis, and ML workflows applied to real engineering problems and research datasets.</p>
+          <span class="module-tag">Data & Code</span>
+          <div class="expand-panel">
+            <div class="expand-content">
+              <p>AI accelerates engineering workflows — writing <strong>Python scripts, building ML models</strong>, diagnosing simulation data, and creating visualizations that make patterns in complex datasets visible.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 4: Engineering Software -->
+        <div class="module" data-index="3" id="mod-3">
+          <div class="module-visual">
+            <canvas class="eng-canvas" id="eng-canvas"></canvas>
+          </div>
+          <div class="module-number">04 / 05</div>
+          <h3 class="module-title">AI Tools for Engineering Software</h3>
+          <p class="module-desc">Custom bridges between AI and tools like TRNSYS, IES·VE, and Onshape — enabling smarter modeling and simulation workflows.</p>
+          <span class="module-tag">Software Integration</span>
+          <div class="expand-panel">
+            <div class="expand-content">
+              <p>AI is used to create <strong>intelligent interfaces and automation scripts</strong> that connect domain software — building simulation, energy modeling, and CAD — reducing manual effort and enabling rapid exploration.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- MODULE 5: Student Examples -->
+        <div class="module" data-index="4" id="mod-4">
+          <div class="module-visual">
+            <canvas class="ex-canvas" id="ex-canvas"></canvas>
+          </div>
+          <div class="module-number">05 / 05</div>
+          <h3 class="module-title">Interactive Tools That Create New Student Examples</h3>
+          <p class="module-desc">Learning tools that generate fresh problems, adjust variables, and produce new worked examples — so students never run out of practice material.</p>
+          <span class="module-tag">Adaptive Learning</span>
+          <div class="expand-panel">
+            <div class="expand-content">
+              <p>Rather than static problem sets, AI-powered tools <strong>regenerate examples on demand</strong> — varying building parameters, thermal conditions, or system configurations to give every student unique, relevant practice scenarios.</p>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /module-grid -->
+    </div><!-- /orbital-system -->
+
+    <!-- BOTTOM STRIP -->
+    <div class="bottom-strip" id="bottom-strip">
+      <div class="strip-item"><div class="strip-dot"></div><span>Graduate-Level Application</span></div>
+      <div class="strip-item"><div class="strip-dot" style="animation-delay:0.8s"></div><span>Research-Grade Tools</span></div>
+      <div class="strip-item"><div class="strip-dot" style="animation-delay:1.6s"></div><span>Real Engineering Problems</span></div>
+      <div class="strip-item"><div class="strip-dot" style="animation-delay:2.4s"></div><span>Active Student Impact</span></div>
+    </div>
+
+  </div><!-- /section-content -->
+</section>
+
+<script>
+/* ═══════════════════════════════════════
+   PARTICLE FIELD
+═══════════════════════════════════════ */
+(function() {
+  const canvas = document.getElementById('particle-canvas');
+  const ctx = canvas.getContext('2d');
+  let W, H, particles = [], mouse = { x: -999, y: -999 };
+  const N = 90;
+
+  function resize() {
+    W = canvas.width = canvas.offsetWidth;
+    H = canvas.height = canvas.offsetHeight;
+  }
+
+  function init() {
+    particles = [];
+    for (let i = 0; i < N; i++) {
+      particles.push({
+        x: Math.random() * W,
+        y: Math.random() * H,
+        vx: (Math.random() - 0.5) * 0.25,
+        vy: (Math.random() - 0.5) * 0.25,
+        r: Math.random() * 1.8 + 0.4,
+        alpha: Math.random() * 0.4 + 0.1
+      });
+    }
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, W, H);
+    // Draw connections
+    for (let i = 0; i < N; i++) {
+      for (let j = i + 1; j < N; j++) {
+        const dx = particles[i].x - particles[j].x;
+        const dy = particles[i].y - particles[j].y;
+        const dist = Math.sqrt(dx*dx + dy*dy);
+        if (dist < 120) {
+          ctx.beginPath();
+          ctx.strokeStyle = `rgba(14,124,123,${0.12 * (1 - dist/120)})`;
+          ctx.lineWidth = 0.5;
+          ctx.moveTo(particles[i].x, particles[i].y);
+          ctx.lineTo(particles[j].x, particles[j].y);
+          ctx.stroke();
+        }
+      }
+    }
+    // Draw particles
+    particles.forEach(p => {
+      ctx.beginPath();
+      ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(14,169,168,${p.alpha})`;
+      ctx.fill();
+    });
+  }
+
+  function update() {
+    particles.forEach(p => {
+      // Slight mouse repulsion
+      const dx = p.x - mouse.x, dy = p.y - mouse.y;
+      const d = Math.sqrt(dx*dx+dy*dy);
+      if (d < 100) { p.vx += dx/d*0.05; p.vy += dy/d*0.05; }
+      p.x += p.vx; p.y += p.vy;
+      p.vx *= 0.99; p.vy *= 0.99;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+    });
+  }
+
+  function loop() { update(); draw(); requestAnimationFrame(loop); }
+
+  window.addEventListener('resize', () => { resize(); init(); });
+  window.addEventListener('mousemove', e => {
+    const rect = canvas.getBoundingClientRect();
+    mouse.x = e.clientX - rect.left;
+    mouse.y = e.clientY - rect.top;
+  });
+
+  resize(); init(); loop();
+})();
+
+/* ═══════════════════════════════════════
+   MODULE 1: BUILDING PHYSICS
+═══════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('bldg-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0, running = false;
+
+  function resize() {
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+  }
+
+  function drawFrame() {
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Building cross-section layers
+    const layers = [
+      { label: 'Exterior', color: '#1a3a5c', h: 20 },
+      { label: 'Insulation', color: '#0e4040', h: 14 },
+      { label: 'Air Gap', color: '#0a1e3a', h: 8 },
+      { label: 'Interior', color: '#112050', h: 22 },
+    ];
+    const totalH = layers.reduce((s,l)=>s+l.h, 0);
+    const scale = (H * 0.55) / totalH;
+    let y = H * 0.15;
+    const lx = W * 0.1, lw = W * 0.55;
+
+    layers.forEach((layer, i) => {
+      const lh = layer.h * scale;
+      // Thermal gradient fill
+      const wave = Math.sin(t * 0.8 + i * 1.2) * 0.12 + 0.88;
+      const grd = ctx.createLinearGradient(lx, y, lx + lw, y);
+      const heat = i === 0 ? `rgba(200,120,40,${0.7 * wave})` : `rgba(14,124,123,${0.4 * wave})`;
+      const cool = i === 3 ? `rgba(20,100,140,${0.6})` : `rgba(14,124,123,${0.2})`;
+      grd.addColorStop(0, heat); grd.addColorStop(1, cool);
+      ctx.fillStyle = grd;
+      ctx.fillRect(lx, y, lw, lh);
+      ctx.strokeStyle = 'rgba(14,169,168,0.2)';
+      ctx.lineWidth = 0.5;
+      ctx.strokeRect(lx, y, lw, lh);
+
+      // Label
+      ctx.fillStyle = 'rgba(160,200,210,0.7)';
+      ctx.font = `${Math.max(8, W * 0.035)}px "DM Mono", monospace`;
+      ctx.fillText(layer.label, lx + lw + 6, y + lh * 0.6);
+
+      y += lh;
+    });
+
+    // Heat flow arrows (animated)
+    const arrowCount = 5;
+    for (let i = 0; i < arrowCount; i++) {
+      const ax = lx + (i / arrowCount) * lw * 0.8 + lw * 0.1;
+      const progress = ((t * 0.4 + i * 0.2) % 1);
+      const ay = H * 0.15 + progress * H * 0.55;
+      const alpha = Math.sin(progress * Math.PI);
+      const hot = progress < 0.5;
+      ctx.strokeStyle = hot ? `rgba(220,130,50,${alpha * 0.8})` : `rgba(20,160,160,${alpha * 0.6})`;
+      ctx.lineWidth = 1.5;
+      ctx.beginPath();
+      ctx.moveTo(ax, ay - 4);
+      ctx.lineTo(ax, ay + 4);
+      ctx.stroke();
+      // arrowhead
+      ctx.beginPath();
+      ctx.moveTo(ax - 3, ay + 2);
+      ctx.lineTo(ax, ay + 6);
+      ctx.lineTo(ax + 3, ay + 2);
+      ctx.stroke();
+    }
+
+    // Temperature axis
+    const tx = lx - 14;
+    ctx.strokeStyle = 'rgba(201,168,76,0.3)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(tx, H * 0.15);
+    ctx.lineTo(tx, H * 0.70);
+    ctx.stroke();
+
+    // Temperature curve
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(201,168,76,0.7)';
+    ctx.lineWidth = 1.5;
+    const steps = 40;
+    for (let i = 0; i <= steps; i++) {
+      const fy = H * 0.15 + (i/steps) * H * 0.55;
+      const fx = tx - 4 - Math.sin(i/steps * Math.PI + t * 0.5) * 8;
+      i === 0 ? ctx.moveTo(fx, fy) : ctx.lineTo(fx, fy);
+    }
+    ctx.stroke();
+
+    // Labels
+    ctx.fillStyle = 'rgba(201,168,76,0.6)';
+    ctx.font = `${Math.max(7, W*0.03)}px "DM Mono"`;
+    ctx.fillText('Hot', lx - 10, H * 0.18);
+    ctx.fillText('Cold', lx - 12, H * 0.67);
+
+    t += 0.016;
+  }
+
+  function loop() {
+    if (!running) return;
+    drawFrame();
+    requestAnimationFrame(loop);
+  }
+
+  const observer = new IntersectionObserver(entries => {
+    if (entries[0].isIntersecting) { running = true; resize(); loop(); }
+    else running = false;
+  }, { threshold: 0.1 });
+  observer.observe(c);
+
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+/* ═══════════════════════════════════════
+   MODULE 2: LITERATURE REVIEWS
+═══════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('lit-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0, running = false;
+
+  const papers = [];
+  function initPapers(W, H) {
+    papers.length = 0;
+    const count = 18;
+    for (let i = 0; i < count; i++) {
+      papers.push({
+        x: Math.random() * W * 0.8 + W * 0.1,
+        y: Math.random() * H * 0.8 + H * 0.1,
+        tx: 0, ty: 0, // target
+        phase: Math.random() * Math.PI * 2,
+        cluster: Math.floor(Math.random() * 3),
+        size: Math.random() * 5 + 8,
+        alpha: Math.random() * 0.4 + 0.4
+      });
+    }
+    // Assign cluster targets
+    const clusters = [
+      { x: W * 0.25, y: H * 0.35 },
+      { x: W * 0.5, y: H * 0.65 },
+      { x: W * 0.75, y: H * 0.3 },
+    ];
+    papers.forEach(p => {
+      const c = clusters[p.cluster];
+      p.tx = c.x + (Math.random() - 0.5) * W * 0.2;
+      p.ty = c.y + (Math.random() - 0.5) * H * 0.22;
+    });
+  }
+
+  function resize() {
+    c.width = c.offsetWidth; c.height = c.offsetHeight;
+    initPapers(c.width, c.height);
+  }
+
+  function drawFrame() {
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+    const progress = Math.min(1, (Math.sin(t * 0.2) * 0.5 + 0.5));
+
+    // Draw cluster halos
+    const clusters = [
+      { x: W * 0.25, y: H * 0.35, color: '14,124,123' },
+      { x: W * 0.5,  y: H * 0.65, color: '201,168,76' },
+      { x: W * 0.75, y: H * 0.3,  color: '20,100,160' },
+    ];
+    clusters.forEach(cl => {
+      const grd = ctx.createRadialGradient(cl.x, cl.y, 5, cl.x, cl.y, W * 0.18);
+      grd.addColorStop(0, `rgba(${cl.color},${0.15 * progress})`);
+      grd.addColorStop(1, 'transparent');
+      ctx.fillStyle = grd;
+      ctx.beginPath();
+      ctx.arc(cl.x, cl.y, W * 0.18, 0, Math.PI * 2);
+      ctx.fill();
+    });
+
+    // Draw connections between same-cluster papers
+    papers.forEach((p, i) => {
+      papers.forEach((q, j) => {
+        if (j <= i || p.cluster !== q.cluster) return;
+        const dist = Math.hypot(p.x - q.x, p.y - q.y);
+        if (dist > W * 0.35) return;
+        const cl = clusters[p.cluster];
+        ctx.strokeStyle = `rgba(${cl.color === '14,124,123' ? '14,124,123' : cl.color === '201,168,76' ? '201,168,76' : '20,100,160'},${0.2 * progress})`;
+        ctx.lineWidth = 0.5;
+        ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(q.x, q.y); ctx.stroke();
+      });
+    });
+
+    // Draw papers (as tiny doc icons)
+    papers.forEach(p => {
+      // Interpolate toward cluster
+      p.x += (p.tx - p.x) * 0.015;
+      p.y += (p.ty - p.y) * 0.015;
+      const px = p.x + Math.sin(t * 0.5 + p.phase) * 1.5;
+      const py = p.y + Math.cos(t * 0.4 + p.phase) * 1.5;
+      const cl = clusters[p.cluster];
+      const col = cl.color === '14,124,123' ? '14,169,168' : cl.color === '201,168,76' ? '220,190,100' : '60,140,200';
+
+      ctx.save();
+      ctx.translate(px, py);
+      ctx.fillStyle = `rgba(17,32,80,0.9)`;
+      ctx.strokeStyle = `rgba(${col},${p.alpha})`;
+      ctx.lineWidth = 0.8;
+      const sw = p.size, sh = p.size * 1.3;
+      ctx.fillRect(-sw/2, -sh/2, sw, sh);
+      ctx.strokeRect(-sw/2, -sh/2, sw, sh);
+      // Lines on doc
+      ctx.strokeStyle = `rgba(${col},0.4)`;
+      ctx.lineWidth = 0.5;
+      for (let li = 1; li <= 3; li++) {
+        ctx.beginPath();
+        ctx.moveTo(-sw/2 + 1, -sh/2 + li * sh/4);
+        ctx.lineTo(sw/2 - 1, -sh/2 + li * sh/4);
+        ctx.stroke();
+      }
+      ctx.restore();
+    });
+
+    // Cluster labels
+    clusters.forEach((cl, i) => {
+      ctx.fillStyle = `rgba(160,210,220,${0.6 * progress})`;
+      ctx.font = `${Math.max(7, W * 0.028)}px "DM Mono"`;
+      ctx.textAlign = 'center';
+      const labels = ['Thermal Storage', 'Building Systems', 'PCM Research'];
+      ctx.fillText(labels[i], cl.x, cl.y + H * 0.22);
+    });
+    ctx.textAlign = 'left';
+
+    t += 0.016;
+  }
+
+  function loop() { if (!running) return; drawFrame(); requestAnimationFrame(loop); }
+  const observer = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { running = true; resize(); loop(); } else running = false;
+  }, { threshold: 0.1 });
+  observer.observe(c);
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+/* ═══════════════════════════════════════
+   MODULE 3: PYTHON / ML
+═══════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('py-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0, running = false;
+
+  const codeLines = [
+    'import numpy as np',
+    'from sklearn import RandomForest',
+    'model.fit(X_train, y)',
+    'pred = model.predict(X_test)',
+    'accuracy = 0.93',
+  ];
+
+  function resize() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
+
+  function drawFrame() {
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Code panel background
+    const cpW = W * 0.48, cpH = H * 0.78;
+    const cpX = W * 0.04, cpY = H * 0.11;
+    ctx.fillStyle = 'rgba(8,12,28,0.8)';
+    ctx.strokeStyle = 'rgba(14,124,123,0.25)';
+    ctx.lineWidth = 1;
+    ctx.fillRect(cpX, cpY, cpW, cpH);
+    ctx.strokeRect(cpX, cpY, cpW, cpH);
+
+    // Code header bar
+    ctx.fillStyle = 'rgba(14,124,123,0.15)';
+    ctx.fillRect(cpX, cpY, cpW, 12);
+    [0,1,2].forEach((i) => {
+      ctx.beginPath();
+      ctx.arc(cpX + 8 + i * 10, cpY + 6, 3, 0, Math.PI*2);
+      ctx.fillStyle = ['rgba(255,100,100,0.6)','rgba(255,200,50,0.6)','rgba(50,200,100,0.6)'][i];
+      ctx.fill();
+    });
+
+    // Scrolling code lines
+    const lineH = cpH * 0.17;
+    const scroll = (t * 12) % (lineH * codeLines.length);
+    codeLines.forEach((line, i) => {
+      const ly = cpY + 18 + i * lineH - scroll % (lineH * codeLines.length);
+      const looped = ((ly - cpY - 18 + lineH * codeLines.length) % (lineH * codeLines.length));
+      const actualY = cpY + 18 + looped;
+      if (actualY < cpY + 14 || actualY > cpY + cpH - 4) return;
+
+      const colors = ['rgba(14,169,168,0.9)','rgba(201,168,76,0.9)','rgba(160,200,220,0.8)','rgba(200,160,220,0.8)','rgba(100,220,150,0.9)'];
+      ctx.fillStyle = colors[i % colors.length];
+      ctx.font = `${Math.max(7, W * 0.032)}px "DM Mono"`;
+      ctx.fillText(line, cpX + 6, actualY);
+    });
+
+    // Clip for code panel
+    ctx.save();
+    ctx.beginPath();
+    ctx.rect(cpX, cpY + 13, cpW, cpH - 14);
+    ctx.clip();
+    ctx.restore();
+
+    // ML Chart panel
+    const chartX = W * 0.56, chartY = H * 0.11;
+    const chartW = W * 0.4, chartH = H * 0.52;
+    ctx.fillStyle = 'rgba(8,12,28,0.7)';
+    ctx.strokeStyle = 'rgba(201,168,76,0.2)';
+    ctx.fillRect(chartX, chartY, chartW, chartH);
+    ctx.strokeRect(chartX, chartY, chartW, chartH);
+
+    // Chart label
+    ctx.fillStyle = 'rgba(201,168,76,0.6)';
+    ctx.font = `${Math.max(6, W*0.025)}px "DM Mono"`;
+    ctx.fillText('ML Prediction', chartX + 4, chartY + 10);
+
+    // Animated chart line
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(14,169,168,0.8)';
+    ctx.lineWidth = 1.5;
+    const pts = 30;
+    for (let i = 0; i <= pts; i++) {
+      const x = chartX + 8 + (i/pts) * (chartW - 16);
+      const noise = Math.sin(i * 0.7 + t * 1.2) * 0.15 + Math.sin(i * 0.3 - t * 0.7) * 0.1;
+      const trend = 1 - (i/pts) * 0.5;
+      const y = chartY + chartH * 0.8 - (trend + noise) * chartH * 0.55;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+
+    // Predicted line (dashed)
+    ctx.setLineDash([3, 3]);
+    ctx.beginPath();
+    ctx.strokeStyle = 'rgba(201,168,76,0.6)';
+    ctx.lineWidth = 1;
+    for (let i = 0; i <= pts; i++) {
+      const x = chartX + 8 + (i/pts) * (chartW - 16);
+      const y = chartY + chartH * 0.8 - (1 - i/pts * 0.45) * chartH * 0.5;
+      i === 0 ? ctx.moveTo(x, y) : ctx.lineTo(x, y);
+    }
+    ctx.stroke();
+    ctx.setLineDash([]);
+
+    // Accuracy badge
+    const badgeX = W * 0.56, badgeY = H * 0.67;
+    ctx.fillStyle = 'rgba(14,124,123,0.2)';
+    ctx.strokeStyle = 'rgba(14,169,168,0.4)';
+    ctx.lineWidth = 1;
+    ctx.fillRect(badgeX, badgeY, chartW, H * 0.22);
+    ctx.strokeRect(badgeX, badgeY, chartW, H * 0.22);
+    ctx.fillStyle = 'rgba(14,169,168,0.8)';
+    ctx.font = `bold ${Math.max(10, W * 0.045)}px "Outfit"`;
+    ctx.fillText('93.4%', badgeX + chartW/2 - 20, badgeY + H * 0.14);
+    ctx.fillStyle = 'rgba(160,200,210,0.5)';
+    ctx.font = `${Math.max(6,W*0.026)}px "DM Mono"`;
+    ctx.fillText('Model Accuracy', badgeX + chartW/2 - 28, badgeY + H * 0.20);
+
+    t += 0.016;
+  }
+
+  function loop() { if (!running) return; drawFrame(); requestAnimationFrame(loop); }
+  const observer = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { running = true; resize(); loop(); } else running = false;
+  }, { threshold: 0.1 });
+  observer.observe(c);
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+/* ═══════════════════════════════════════
+   MODULE 4: ENGINEERING SOFTWARE
+═══════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('eng-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0, running = false;
+
+  function resize() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
+
+  function drawFrame() {
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+
+    // Software panels
+    const panels = [
+      { label: 'TRNSYS', x: 0.04, y: 0.08, w: 0.28, h: 0.42, color: '14,124,123' },
+      { label: 'IES·VE', x: 0.36, y: 0.08, w: 0.28, h: 0.42, color: '201,168,76' },
+      { label: 'Onshape', x: 0.68, y: 0.08, w: 0.28, h: 0.42, color: '60,140,200' },
+    ];
+
+    panels.forEach((p, i) => {
+      const px = W * p.x, py = H * p.y, pw = W * p.w, ph = H * p.h;
+      const pulse = Math.sin(t * 1.2 + i * 2.1) * 0.08 + 0.92;
+      ctx.fillStyle = `rgba(10,15,30,0.85)`;
+      ctx.strokeStyle = `rgba(${p.color},${0.4 * pulse})`;
+      ctx.lineWidth = 1;
+      ctx.fillRect(px, py, pw, ph);
+      ctx.strokeRect(px, py, pw, ph);
+
+      // Header
+      ctx.fillStyle = `rgba(${p.color},0.2)`;
+      ctx.fillRect(px, py, pw, 12);
+      ctx.fillStyle = `rgba(${p.color},0.9)`;
+      ctx.font = `${Math.max(6, W*0.025)}px "DM Mono"`;
+      ctx.textAlign = 'center';
+      ctx.fillText(p.label, px + pw/2, py + 9);
+      ctx.textAlign = 'left';
+
+      // Abstract diagram content
+      if (i === 0) {
+        // TRNSYS-style flow diagram
+        const nodes = [[px+pw*0.2, py+ph*0.4], [px+pw*0.5, py+ph*0.55], [px+pw*0.8, py+ph*0.4]];
+        nodes.forEach((n, ni) => {
+          const grd = ctx.createRadialGradient(n[0],n[1],2,n[0],n[1],10);
+          grd.addColorStop(0, `rgba(${p.color},0.8)`);
+          grd.addColorStop(1, 'transparent');
+          ctx.fillStyle = grd;
+          ctx.beginPath(); ctx.arc(n[0], n[1], 10, 0, Math.PI*2); ctx.fill();
+        });
+        // Animated flow
+        nodes.forEach((n, ni) => {
+          if (ni < nodes.length-1) {
+            const nx = nodes[ni+1];
+            const prog = ((t * 0.5 + ni * 0.33) % 1);
+            const fx = n[0] + (nx[0]-n[0]) * prog;
+            const fy = n[1] + (nx[1]-n[1]) * prog;
+            ctx.strokeStyle = `rgba(${p.color},0.5)`;
+            ctx.lineWidth = 1;
+            ctx.beginPath(); ctx.moveTo(n[0],n[1]); ctx.lineTo(nx[0],nx[1]); ctx.stroke();
+            ctx.beginPath();
+            ctx.arc(fx, fy, 3, 0, Math.PI*2);
+            ctx.fillStyle = `rgba(${p.color},0.9)`;
+            ctx.fill();
+          }
+        });
+      } else if (i === 1) {
+        // IES-VE building footprint
+        ctx.strokeStyle = `rgba(${p.color},0.6)`;
+        ctx.lineWidth = 1;
+        ctx.strokeRect(px+pw*0.15, py+ph*0.3, pw*0.7, ph*0.4);
+        ctx.strokeRect(px+pw*0.3, py+ph*0.3, pw*0.4, ph*0.55);
+        // Heat map gradient overlay
+        const hm = ctx.createLinearGradient(px+pw*0.15, py, px+pw*0.85, py+ph);
+        hm.addColorStop(0, `rgba(201,80,40,0.2)`);
+        hm.addColorStop(0.5, `rgba(201,168,76,0.15)`);
+        hm.addColorStop(1, `rgba(20,100,200,0.2)`);
+        ctx.fillStyle = hm;
+        ctx.fillRect(px+pw*0.15, py+ph*0.3, pw*0.7, ph*0.4);
+      } else {
+        // CAD lines
+        ctx.save();
+        ctx.translate(px + pw/2, py + ph/2 + 2);
+        const s = pw * 0.28;
+        const rot = t * 0.3;
+        ctx.rotate(rot);
+        ctx.strokeStyle = `rgba(${p.color},0.7)`;
+        ctx.lineWidth = 1;
+        // Cube wireframe
+        [[-s,-s,s,s],[s,-s,s,s],[s,s,-s,s],[-s,s,-s,-s]].forEach(([x1,y1,x2,y2]) => {
+          ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2); ctx.stroke();
+        });
+        ctx.restore();
+      }
+    });
+
+    // AI Core connecting to panels
+    const aiX = W * 0.5, aiY = H * 0.77;
+    ctx.beginPath();
+    ctx.arc(aiX, aiY, 16, 0, Math.PI*2);
+    ctx.fillStyle = 'rgba(14,124,123,0.8)';
+    ctx.fill();
+    ctx.fillStyle = 'rgba(240,234,216,0.9)';
+    ctx.font = `${Math.max(6,W*0.028)}px "DM Mono"`;
+    ctx.textAlign = 'center';
+    ctx.fillText('AI', aiX, aiY + 4);
+    ctx.textAlign = 'left';
+
+    panels.forEach((p, i) => {
+      const px = W * p.x + W * p.w / 2;
+      const py2 = H * p.y + H * p.h;
+      const prog = ((t * 0.7 + i * 0.33) % 1);
+      const fx = px + (aiX - px) * prog;
+      const fy = py2 + (aiY - py2) * prog;
+      ctx.strokeStyle = `rgba(${p.color},0.18)`;
+      ctx.lineWidth = 1;
+      ctx.setLineDash([3,3]);
+      ctx.beginPath(); ctx.moveTo(px, py2); ctx.lineTo(aiX, aiY); ctx.stroke();
+      ctx.setLineDash([]);
+      ctx.beginPath(); ctx.arc(fx, fy, 2.5, 0, Math.PI*2);
+      ctx.fillStyle = `rgba(${p.color},0.9)`; ctx.fill();
+    });
+
+    t += 0.016;
+  }
+
+  function loop() { if (!running) return; drawFrame(); requestAnimationFrame(loop); }
+  const observer = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { running = true; resize(); loop(); } else running = false;
+  }, { threshold: 0.1 });
+  observer.observe(c);
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+/* ═══════════════════════════════════════
+   MODULE 5: STUDENT EXAMPLES
+═══════════════════════════════════════ */
+(function() {
+  const c = document.getElementById('ex-canvas');
+  if (!c) return;
+  const ctx = c.getContext('2d');
+  let t = 0, running = false;
+  let cardT = 0;
+
+  const problems = [
+    { q: 'Find R-value for\n3″ insulation layer', v: 'R = 12.5 h·ft²·°F/BTU' },
+    { q: 'COP of heat pump\nat ΔT = 30°F?', v: 'COP = 4.2' },
+    { q: 'U-value for\ndouble-pane glass', v: 'U = 0.29 BTU/h·ft²·°F' },
+    { q: 'Heating load\n2000 ft² building', v: 'Q = 48,000 BTU/h' },
+  ];
+
+  function resize() { c.width = c.offsetWidth; c.height = c.offsetHeight; }
+
+  function drawFrame() {
+    const W = c.width, H = c.height;
+    ctx.clearRect(0, 0, W, H);
+
+    cardT = Math.floor(t / 4) % problems.length;
+    const fade = Math.min(1, (t % 4) / 0.5); // fade in
+    const fadeOut = Math.max(0, 1 - ((t % 4) - 3.5) / 0.5); // fade out
+    const alpha = Math.min(fade, fadeOut);
+
+    const prob = problems[cardT];
+
+    // Main problem card
+    const cw = W * 0.88, ch = H * 0.48;
+    const cx2 = W * 0.06, cy2 = H * 0.08;
+    ctx.fillStyle = `rgba(17,32,80,0.9)`;
+    ctx.strokeStyle = `rgba(14,169,168,${0.5 * alpha})`;
+    ctx.lineWidth = 1;
+    ctx.fillRect(cx2, cy2, cw, ch);
+    ctx.strokeRect(cx2, cy2, cw, ch);
+
+    // Card header
+    ctx.fillStyle = `rgba(14,124,123,${0.25 * alpha})`;
+    ctx.fillRect(cx2, cy2, cw, 14);
+    ctx.fillStyle = `rgba(14,169,168,${0.8 * alpha})`;
+    ctx.font = `${Math.max(6,W*0.025)}px "DM Mono"`;
+    ctx.fillText('◦ Problem Generator', cx2 + 6, cy2 + 10);
+
+    // Problem text
+    const lines = prob.q.split('\n');
+    ctx.fillStyle = `rgba(240,234,216,${alpha})`;
+    ctx.font = `${Math.max(9, W * 0.038)}px "Outfit"`;
+    lines.forEach((line, i) => {
+      ctx.fillText(line, cx2 + 10, cy2 + 36 + i * 18);
+    });
+
+    // Answer reveal
+    const revealProg = Math.max(0, (t % 4 - 2));
+    if (revealProg > 0) {
+      const rAlpha = Math.min(1, revealProg * 3) * fadeOut;
+      ctx.fillStyle = `rgba(8,12,28,${0.9*rAlpha})`;
+      ctx.fillRect(cx2 + 4, cy2 + ch - 26, cw - 8, 22);
+      ctx.strokeStyle = `rgba(201,168,76,${0.6*rAlpha})`;
+      ctx.lineWidth = 1;
+      ctx.strokeRect(cx2 + 4, cy2 + ch - 26, cw - 8, 22);
+      ctx.fillStyle = `rgba(201,168,76,${rAlpha})`;
+      ctx.font = `${Math.max(8,W*0.034)}px "DM Mono"`;
+      ctx.fillText(prob.v, cx2 + 10, cy2 + ch - 10);
+    }
+
+    // Variable sliders
+    const sliders = [
+      { label: 'Thickness', val: Math.sin(t * 0.5) * 0.5 + 0.5 },
+      { label: 'k (W/m·K)', val: Math.sin(t * 0.3 + 1) * 0.5 + 0.5 },
+    ];
+    const sy = H * 0.63;
+    sliders.forEach((s, i) => {
+      const sx = cx2 + (i === 0 ? 0 : cw / 2 + 4);
+      const sw2 = cw / 2 - 4;
+      ctx.fillStyle = 'rgba(8,12,28,0.8)';
+      ctx.strokeStyle = 'rgba(14,124,123,0.3)';
+      ctx.lineWidth = 0.8;
+      ctx.fillRect(sx, sy, sw2, H * 0.3);
+      ctx.strokeRect(sx, sy, sw2, H * 0.3);
+      ctx.fillStyle = 'rgba(160,200,210,0.7)';
+      ctx.font = `${Math.max(6,W*0.025)}px "DM Mono"`;
+      ctx.fillText(s.label, sx + 6, sy + 14);
+      // Track
+      const tx2 = sx + 8, ty2 = sy + H * 0.2, tw = sw2 - 16;
+      ctx.fillStyle = 'rgba(14,124,123,0.2)';
+      ctx.fillRect(tx2, ty2, tw, 3);
+      ctx.fillStyle = 'rgba(14,169,168,0.8)';
+      ctx.fillRect(tx2, ty2, tw * s.val, 3);
+      ctx.beginPath();
+      ctx.arc(tx2 + tw * s.val, ty2 + 1.5, 5, 0, Math.PI*2);
+      ctx.fillStyle = 'rgba(14,169,168,1)';
+      ctx.fill();
+      // Value
+      ctx.fillStyle = 'rgba(201,168,76,0.8)';
+      ctx.fillText((s.val * 3 + 0.5).toFixed(2), sx + 6, sy + H * 0.27);
+    });
+
+    // Regenerate pulse
+    const pulse = Math.sin(t * 3) * 0.5 + 0.5;
+    ctx.fillStyle = `rgba(14,124,123,${0.15 + 0.1 * pulse})`;
+    ctx.beginPath();
+    ctx.arc(W * 0.93, H * 0.12, 8, 0, Math.PI*2);
+    ctx.fill();
+    ctx.strokeStyle = `rgba(14,169,168,${0.6 + 0.3 * pulse})`;
+    ctx.lineWidth = 1;
+    ctx.stroke();
+    ctx.fillStyle = 'rgba(240,234,216,0.8)';
+    ctx.font = `${Math.max(8,W*0.04)}px "Outfit"`;
+    ctx.textAlign = 'center';
+    ctx.fillText('↻', W * 0.93, H * 0.15);
+    ctx.textAlign = 'left';
+
+    t += 0.016;
+  }
+
+  function loop() { if (!running) return; drawFrame(); requestAnimationFrame(loop); }
+  const observer = new IntersectionObserver(e => {
+    if (e[0].isIntersecting) { running = true; resize(); loop(); } else running = false;
+  }, { threshold: 0.1 });
+  observer.observe(c);
+  window.addEventListener('resize', resize);
+  resize();
+})();
+
+/* ═══════════════════════════════════════
+   SCROLL REVEAL
+═══════════════════════════════════════ */
+const header = document.getElementById('section-header');
+const modules = document.querySelectorAll('.module');
+const bottomStrip = document.getElementById('bottom-strip');
+
+const revealObs = new IntersectionObserver((entries) => {
+  entries.forEach(e => {
+    if (e.isIntersecting) {
+      e.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.15 });
+
+revealObs.observe(header);
+bottomStrip && revealObs.observe(bottomStrip);
+
+modules.forEach((m, i) => {
+  m.style.transitionDelay = `${0.1 + i * 0.1}s`;
+  revealObs.observe(m);
+});
+
+/* ═══════════════════════════════════════
+   MODULE CLICK / EXPAND
+═══════════════════════════════════════ */
+modules.forEach((m) => {
+  m.addEventListener('click', () => {
+    const isActive = m.classList.contains('active');
+    modules.forEach(x => x.classList.remove('active'));
+    if (!isActive) m.classList.add('active');
+  });
+});
+
+/* ═══════════════════════════════════════
+   3D TILT ON MOUSE MOVE
+═══════════════════════════════════════ */
+modules.forEach(m => {
+  m.addEventListener('mousemove', (e) => {
+    const rect = m.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = (e.clientX - cx) / (rect.width / 2);
+    const dy = (e.clientY - cy) / (rect.height / 2);
+    m.style.transform = `perspective(800px) rotateY(${dx * 5}deg) rotateX(${-dy * 5}deg) translateY(-8px) scale(1.02)`;
+  });
+  m.addEventListener('mouseleave', () => {
+    m.style.transform = '';
+    m.style.transition = 'transform 0.5s cubic-bezier(0.23, 1, 0.32, 1), box-shadow 0.4s ease, border-color 0.4s ease';
+  });
+  m.addEventListener('mouseenter', () => {
+    m.style.transition = 'transform 0.15s ease, box-shadow 0.4s ease, border-color 0.4s ease';
+  });
+});
+</script>
+</body>
+</html>
