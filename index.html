@@ -67,15 +67,23 @@
     z-index: 10;
     max-width: 1400px;
     margin: 0 auto;
-    padding: 90px 40px 100px;
+    padding: 36px 40px 48px;
   }
 
-  /* ── HEADER ── */
+  /* ── TOP ROW: hub left + header right, side by side ── */
+  .top-row {
+    display: flex;
+    align-items: center;
+    gap: 40px;
+    margin-bottom: 36px;
+  }
+
+  /* ── HEADER (now inline, left-aligned) ── */
   .section-header {
-    text-align: center;
-    margin-bottom: 80px;
+    flex: 1;
+    text-align: left;
     opacity: 0;
-    transform: translateY(30px);
+    transform: translateY(20px);
     transition: opacity 0.9s ease, transform 0.9s ease;
   }
   .section-header.visible { opacity: 1; transform: translateY(0); }
@@ -86,28 +94,26 @@
     letter-spacing: 0.25em;
     color: var(--teal2);
     text-transform: uppercase;
-    margin-bottom: 18px;
+    margin-bottom: 12px;
     display: flex;
     align-items: center;
-    justify-content: center;
     gap: 14px;
   }
-  .eyebrow::before, .eyebrow::after {
+  .eyebrow::before {
     content: '';
     width: 50px;
     height: 1px;
     background: linear-gradient(90deg, transparent, var(--teal2));
   }
-  .eyebrow::after { transform: scaleX(-1); }
 
   .section-title {
     font-family: 'Cormorant Garamond', serif;
-    font-size: clamp(2.8rem, 6vw, 5.2rem);
+    font-size: clamp(2rem, 4vw, 3.6rem);
     font-weight: 300;
     line-height: 1.1;
     color: var(--cream);
     letter-spacing: -0.01em;
-    margin-bottom: 24px;
+    margin-bottom: 14px;
   }
   .section-title em {
     font-style: italic;
@@ -115,12 +121,11 @@
   }
 
   .section-subtitle {
-    font-size: 1.05rem;
+    font-size: 0.95rem;
     font-weight: 300;
     color: var(--muted);
-    max-width: 580px;
-    margin: 0 auto;
-    line-height: 1.7;
+    max-width: 480px;
+    line-height: 1.65;
   }
 
   /* ── ORBITAL LAYOUT ── */
@@ -131,19 +136,19 @@
     margin: 0 auto;
   }
 
-  /* ── CENTRAL HUB ── */
+  /* ── CENTRAL HUB (now inside top-row, no bottom margin) ── */
   .hub-container {
+    flex-shrink: 0;
     display: flex;
     justify-content: center;
     align-items: center;
-    margin-bottom: 60px;
     position: relative;
   }
 
   .hub {
     position: relative;
-    width: 200px;
-    height: 200px;
+    width: 180px;
+    height: 180px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -157,9 +162,9 @@
     border: 1px solid rgba(14,124,123,0.3);
     animation: hubRotate 20s linear infinite;
   }
-  .hub-ring:nth-child(1) { width: 200px; height: 200px; border-color: rgba(14,124,123,0.25); }
-  .hub-ring:nth-child(2) { width: 160px; height: 160px; border-color: rgba(201,168,76,0.2); animation-direction: reverse; animation-duration: 14s; }
-  .hub-ring:nth-child(3) { width: 120px; height: 120px; border-color: rgba(14,124,123,0.35); animation-duration: 8s; }
+  .hub-ring:nth-child(1) { width: 180px; height: 180px; border-color: rgba(14,124,123,0.25); }
+  .hub-ring:nth-child(2) { width: 142px; height: 142px; border-color: rgba(201,168,76,0.2); animation-direction: reverse; animation-duration: 14s; }
+  .hub-ring:nth-child(3) { width: 106px; height: 106px; border-color: rgba(14,124,123,0.35); animation-duration: 8s; }
 
   .hub-ring::before {
     content: '';
@@ -252,7 +257,7 @@
   .module {
     position: relative;
     border-radius: 16px;
-    padding: 28px 22px;
+    padding: 18px 18px 16px;
     background: linear-gradient(145deg, rgba(17,32,80,0.7), rgba(10,15,30,0.85));
     border: 1px solid rgba(14,124,123,0.18);
     backdrop-filter: blur(12px);
@@ -305,8 +310,8 @@
 
   /* ── MODULE VISUAL SCENE ── */
   .module-visual {
-    height: 130px;
-    margin-bottom: 18px;
+    height: 100px;
+    margin-bottom: 12px;
     position: relative;
     border-radius: 10px;
     overflow: hidden;
@@ -385,7 +390,7 @@
   /* ── SCROLL PROMPT ── */
   .scroll-hint {
     text-align: center;
-    margin-top: 60px;
+    margin-top: 28px;
     opacity: 0;
     transition: opacity 1s 1.5s;
   }
@@ -401,8 +406,8 @@
 
   /* ── BOTTOM STRIP ── */
   .bottom-strip {
-    margin-top: 80px;
-    padding-top: 40px;
+    margin-top: 36px;
+    padding-top: 24px;
     border-top: 1px solid rgba(14,124,123,0.12);
     display: flex;
     justify-content: center;
@@ -467,19 +472,10 @@
 
   <div class="section-content">
 
-    <!-- HEADER -->
-    <header class="section-header" id="section-header">
-      <div class="eyebrow">Dr Nuha Aljuneidi</div>
-      <h2 class="section-title">How I Use <em>AI</em><br>in Academia</h2>
-      <p class="section-subtitle">
-        Integrating intelligent tools into teaching, research, and engineering — building real things that work.
-      </p>
-    </header>
+    <!-- TOP ROW: Hub + Header side by side -->
+    <div class="top-row">
 
-    <!-- ORBITAL SYSTEM -->
-    <div class="orbital-system" id="orbital-system">
-
-      <!-- Central Hub -->
+      <!-- Hub (pulled out of orbital-system) -->
       <div class="hub-container">
         <div class="hub" id="hub">
           <div class="hub-ring"></div>
@@ -502,6 +498,20 @@
           <div class="hub-label"><span>AI Core</span></div>
         </div>
       </div>
+
+      <!-- Header text -->
+      <header class="section-header" id="section-header">
+        <div class="eyebrow">Dr Nuha Aljuneidi</div>
+        <h2 class="section-title">How I Use <em>AI</em><br>in Academia</h2>
+        <p class="section-subtitle">
+          Integrating intelligent tools into teaching, research, and engineering — building real things that work.
+        </p>
+      </header>
+
+    </div><!-- /top-row -->
+
+    <!-- ORBITAL SYSTEM (cards only, hub moved above) -->
+    <div class="orbital-system" id="orbital-system">
 
       <!-- MODULE GRID -->
       <div class="module-grid" id="module-grid">
