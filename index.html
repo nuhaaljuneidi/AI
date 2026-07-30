@@ -465,16 +465,16 @@
 
 /* ELEGANT DARK THEME */
 :root{
-  --navy:#111318;--deep:#171a20;--mid:#20242c;
+  --navy:#252a32;--deep:#2b313b;--mid:#343c48;
   --teal:#789e91;--teal2:#9bbcaf;--gold:#b89a62;--gold2:#d2b77f;
   --cream:#f2eee5;--muted:#9aa3ad;
   --glow:rgba(120,158,145,.16);--glow2:rgba(184,154,98,.12)
 }
-body{background:#111318;color:var(--cream)}
+body{background:#252a32;color:var(--cream)}
 .bg-gradient{background:
   radial-gradient(ellipse 70% 45% at 16% 4%,rgba(120,158,145,.08),transparent 62%),
   radial-gradient(ellipse 55% 45% at 92% 92%,rgba(184,154,98,.05),transparent 65%),
-  linear-gradient(180deg,#111318 0%,#15181e 52%,#101217 100%)}
+  linear-gradient(180deg,#29303a 0%,#252b34 52%,#20252d 100%)}
 #particle-canvas{opacity:.22}
 .eyebrow{color:var(--gold2);letter-spacing:.22em}
 .eyebrow::before{background:linear-gradient(90deg,transparent,var(--gold2))}
@@ -490,14 +490,14 @@ body{background:#111318;color:var(--cream)}
 .hub-core{background:radial-gradient(circle at 35% 30%,#789e91,#405f57 55%,#20252a 100%);
   box-shadow:0 10px 35px rgba(0,0,0,.35),inset 0 1px 1px rgba(255,255,255,.12);animation:none}
 .hub-label span{color:var(--gold2)}
-.module{border-radius:12px;background:linear-gradient(145deg,rgba(30,34,41,.96),rgba(20,23,29,.98));
+.module{border-radius:12px;background:linear-gradient(145deg,rgba(51,58,69,.97),rgba(37,43,52,.98));
   border:1px solid rgba(255,255,255,.09);box-shadow:0 12px 36px rgba(0,0,0,.18);backdrop-filter:blur(8px)}
 .module:hover{transform:translateY(-6px) scale(1.01);box-shadow:0 22px 50px rgba(0,0,0,.34);
   border-color:rgba(155,188,175,.38)}
 .module.active{border-color:rgba(210,183,127,.48);box-shadow:0 22px 52px rgba(0,0,0,.38)}
 .module::before{height:1px;background:linear-gradient(90deg,transparent,var(--gold2),transparent)}
 .module::after{background:radial-gradient(ellipse 80% 70% at 50% 0%,rgba(155,188,175,.045),transparent 72%)}
-.module-visual{background:#12151a;border-color:rgba(255,255,255,.07);filter:saturate(.72)}
+.module-visual{background:#222831;border-color:rgba(255,255,255,.09);filter:saturate(.72)}
 .module-number,.module-tag{color:var(--gold2)}
 .module-tag::before{background:var(--gold2)}
 .module-title{color:#f0ece3}
@@ -1438,4 +1438,3 @@ modules.forEach(m => {
 </script>
 </body>
 </html>
-
